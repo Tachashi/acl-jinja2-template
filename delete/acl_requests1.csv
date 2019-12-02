@@ -1,0 +1,19 @@
+hostname,change,acl_type,acl_name,seq_no,action,protocol,src_addr,src_oper,src_port,dest_addr,dest_oper,dest_port,modifier,description
+iosv-1,delete,name_extended,TEST1,110,deny,udp,192.168.1.1/32,,,192.168.2.1/32,eq,ntp,,ACL_TEST1
+iosv-1,delete,name_extended,,120,deny,tcp,192.168.1.2/32,range,1024 65535,192.168.2.1/32,eq,www,,
+iosv-1,delete,name_extended,,130,permit,ip,192.168.1.0/24,,,192.168.2.0/24,,,log,
+iosv-1,delete,name_extended,TEST2,,deny,udp,192.168.1.1/32,,,192.168.2.1/32,eq,ntp,,ACL_TEST2
+iosv-1,delete,name_extended,,,deny,tcp,192.168.1.2/32,range,1024 65535,192.168.2.1/32,eq,www,,
+iosv-1,delete,name_extended,,,permit,ip,192.168.1.0/24,,,192.168.2.0/24,,,log,
+nx-osv9000-1,delete,name_extended,TEST1,110,deny,udp,192.168.1.1/32,,,192.168.2.1/32,eq,ntp,,ACL_TEST1
+nx-osv9000-1,delete,name_extended,,120,deny,tcp,192.168.1.2/32,range,1024 65535,192.168.2.1/32,eq,www,,
+nx-osv9000-1,delete,name_extended,,130,permit,ip,192.168.1.0/24,,,192.168.2.0/24,,,log,
+nx-osv9000-1,delete,name_extended,TEST2,,deny,udp,192.168.1.1/32,,,192.168.2.1/32,eq,ntp,,ACL_TEST2
+nx-osv9000-1,delete,name_extended,,,deny,tcp,192.168.1.2/32,range,1024 65535,192.168.2.1/32,eq,www,,
+nx-osv9000-1,delete,name_extended,,,permit,ip,192.168.1.0/24,,,192.168.2.0/24,,,log,
+asav-1,delete,name_extended,TEST1,,deny,udp,192.168.1.1/32,,,192.168.2.1/32,eq,ntp,,ACL_TEST1
+asav-1,delete,name_extended,TEST1,,deny,tcp,192.168.1.2/32,range,1024 65535,192.168.2.1/32,eq,www,,
+asav-1,delete,name_extended,TEST1,,permit,ip,192.168.1.0/24,,,192.168.2.0/24,,,log,
+asav-1,delete,name_extended,TEST2,,deny,udp,192.168.1.1/32,,,192.168.2.1/32,eq,ntp,,ACL_TEST2
+asav-1,delete,name_extended,TEST2,,deny,tcp,192.168.1.2/32,range,1024 65535,192.168.2.1/32,eq,www,,
+asav-1,delete,name_extended,TEST2,,permit,ip,192.168.1.0/24,,,192.168.2.0/24,,,log,

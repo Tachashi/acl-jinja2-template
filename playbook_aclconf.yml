@@ -1,0 +1,41 @@
+---
+
+- hosts: all
+  gather_facts: no
+  connection: network_cli
+
+  vars:
+#    config_filename: "add/acl_config_{{ inventory_hostname }}.txt"
+    config_filename: "delete/acl_config_{{ inventory_hostname }}.txt"
+
+  tasks:
+    - name: change acls on remote device (ios)   # (1)
+      ios_config:
+        src: "{{ config_filename }}"
+        match: none
+        save_when: modified
+      when: ansible_network_os == 'ios'
+
+    - name: change acls on remote device (nxos)   # (2)
+      nxos_config:
+        src: "{{ config_filename }}"
+        match: none
+        save_when: modified
+      when: ansible_network_os == 'nxos'
+
+    - name: change acls on remote device (asa)   # (3)
+      asa_config:
+        src: "{{ config_filename }}"
+        save: yes
+      when: ansible_network_os == 'asa'
+
+    - name: run show command on remote device   # (4)
+      cli_command:
+        command: show run | begin TEST
+      register: result
+
+    - name: debug   # (5)
+      debug:
+        msg:
+          - "{{ result.stdout_lines }}"
+

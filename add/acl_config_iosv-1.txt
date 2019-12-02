@@ -1,0 +1,10 @@
+ip access-list extended TEST1
+ remark ACL_TEST1
+ 110 deny udp host 192.168.1.1 host 192.168.2.1 eq ntp
+ 120 deny tcp host 192.168.1.2 range 1024 65535 host 192.168.2.1 eq www
+ 130 permit ip 192.168.1.0 0.0.0.255 192.168.2.0 0.0.0.255 log
+ip access-list extended TEST2
+ remark ACL_TEST2
+ deny udp host 192.168.1.1 host 192.168.2.1 eq ntp
+ deny tcp host 192.168.1.2 range 1024 65535 host 192.168.2.1 eq www
+ permit ip 192.168.1.0 0.0.0.255 192.168.2.0 0.0.0.255 log

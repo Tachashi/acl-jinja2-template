@@ -1,0 +1,119 @@
+{% for item in acls %}
+    {% set src_wildcard = item.src_addr | ipaddr('wildcard') %}
+    {% set dest_wildcard = item.dest_addr | ipaddr('wildcard') %}
+    {% if item.hostname == inventory_hostname -%}
+        {% if ansible_network_os == 'ios' %}
+            {% if item.acl_type == 'name_extended' %}
+                {% if item.acl_name != '' -%}
+                    {{ 'ip access-list extended ' + item.acl_name }}
+                {% endif -%}
+                {%- if item.description != '' -%}
+                    {%- if item.change == 'delete' -%}
+                        {{ ' no' }}
+                    {%- endif -%}
+                    {{ ' remark ' + item.description }}
+                {% endif -%}
+                {% if item.change == 'delete' -%}
+                    {{ ' no' }}
+                {%- endif -%}
+                {%- if item.seq_no != '' -%}
+                    {{ ' ' + item.seq_no }}
+                {%- endif -%}
+                {{ ' ' + item.action }}{{ ' ' + item.protocol }}
+                {%- if src_wildcard == '0.0.0.0' -%}
+                    {{ ' host' }}{{ ' ' + item.src_addr | ipaddr('network') }}
+                {%- else -%}
+                    {{ ' ' + item.src_addr | ipaddr('network') }}{{ ' ' + src_wildcard }}
+                {%- endif -%}
+                {%- if item.src_port != '' -%}
+                    {{ ' ' + item.src_oper }}{{ ' ' + item.src_port }}
+                {%- endif -%}
+                {%- if dest_wildcard == '0.0.0.0' -%}
+                    {{ ' host' }}{{ ' ' + item.dest_addr | ipaddr('network') }}
+                {%- else -%}
+                    {{ ' ' + item.dest_addr | ipaddr('network') }}{{ ' ' + dest_wildcard }}
+                {%- endif -%}
+                {%- if item.dest_port != '' -%}
+                    {{ ' ' + item.dest_oper }}{{ ' ' + item.dest_port }}
+                {%- endif -%}
+                {%- if item.modifier != '' -%}
+                    {{ ' ' + item.modifier }}
+                {%- endif -%}{{ '' }}
+            {% endif %}
+        {% elif ansible_network_os == 'nxos' %}
+            {% if item.acl_type == 'name_extended' %}
+                {% if item.acl_name != '' -%}
+                    {{ 'ip access-list ' + item.acl_name }}
+                {% endif -%}
+                {%- if item.description != '' -%}
+                    {{ ' '  }}
+                    {%- if item.change == 'delete' -%}
+                        {{ ' no' }}
+                    {%- endif -%}
+                    {%- if item.seq_no != '' -%}
+                        {%- set seq_no = item.seq_no | int -%}
+                        {%- set seq_no = seq_no - 5 -%}
+                        {%- set seq_no = seq_no | string -%}
+                        {{ ' ' + seq_no + ' remark ' + item.description }}
+                    {% else -%}
+                        {{ ' remark ' + item.description }}
+                    {% endif -%}
+                {%- endif -%}
+                {{ ' '  }}
+                {%- if item.change == 'delete' -%}
+                    {{ ' no' }}
+                {%- endif -%}
+                {%- if item.seq_no != '' -%}
+                    {{ ' ' + item.seq_no }}
+                {%- endif -%}
+                {{ ' ' + item.action }}{{ ' ' + item.protocol }}{{ ' ' + item.src_addr }}
+                {%- if item.src_port != '' -%}
+                    {{ ' ' + item.src_oper }}{{ ' ' + item.src_port }}
+                {%- endif -%}
+                {{ ' ' + item.dest_addr }}
+                {%- if item.dest_port != '' -%}
+                    {{ ' ' + item.dest_oper }}{{ ' ' + item.dest_port }}
+                {%- endif -%}
+                {%- if item.modifier != '' -%}
+                    {{ ' ' + item.modifier }}
+                {%- endif -%}{{ '' }}
+            {% endif %}
+        {% elif ansible_network_os == 'asa' %}
+            {% if item.acl_type == 'name_extended' %}
+                {% if item.description != '' -%}
+                    {%- if item.change == 'delete' -%}
+                        {{ 'no ' }}
+                    {%- endif -%}
+                    {{ 'access-list ' + item.acl_name + ' remark ' + item.description }}
+                {% endif -%}
+                {%- if item.change == 'delete' -%}
+                    {{ 'no ' }}
+                {%- endif -%}
+                {{ 'access-list ' + item.acl_name }}
+                {%- if item.seq_no != '' -%}
+                    {{ ' line ' + item.seq_no }}
+                {%- endif -%}
+                {{ ' extended ' + item.action }}{{ ' ' + item.protocol }}
+                {%- if src_wildcard == '0.0.0.0' -%}
+                    {{ ' host' }}{{ ' ' + item.src_addr | ipaddr('network') }}
+                {%- else -%}
+                    {{ ' ' + item.src_addr | ipaddr('network') }}{{ ' ' + item.src_addr | ipaddr('netmask') }}
+                {%- endif -%}
+                {%- if item.src_port != '' -%}
+                    {{ ' ' + item.src_oper }}{{ ' ' + item.src_port }}
+                {%- endif -%}
+                {%- if dest_wildcard == '0.0.0.0' -%}
+                    {{ ' host' }}{{ ' ' + item.dest_addr | ipaddr('network') }}
+                {%- else -%}
+                    {{ ' ' + item.dest_addr | ipaddr('network') }}{{ ' ' + item.dest_addr | ipaddr('netmask') }}
+                {%- endif -%}
+                {%- if item.dest_port != '' -%}
+                    {{ ' ' + item.dest_oper }}{{ ' ' + item.dest_port }}
+                {%- endif -%}
+                {%- if item.modifier != '' -%}
+                    {{ ' ' + item.modifier }}
+                {%- endif -%}{{ '' }}
+            {% endif %}
+        {% endif %}
+    {% endif %}
+{% endfor %}

@@ -1,0 +1,36 @@
+---
+
+- hosts: all
+  gather_facts: no
+  connection: network_cli
+
+  vars:
+    template: acl_template.j2
+    acl_list: add/acl_requests1.csv
+    config_filename: "add/acl_config_{{ inventory_hostname }}.txt"
+#    acl_list: delete/acl_requests1.csv
+#    config_filename: "delete/acl_config_{{ inventory_hostname }}.txt"
+
+  tasks:
+    - name: read acl requests from CSV file and return a list   # (1)
+      read_csv:
+        path: "{{ acl_list }}"
+      run_once: yes
+      register: acl_requests
+
+    - name: display acl requests   # (2)
+      debug:
+        msg: "{{ acl_requests.list }}"
+      run_once: yes
+
+    - name: set acl requests   # (3)
+      set_fact:
+        acls: "{{ acl_requests.list }}"
+      run_once: yes
+
+    - name: build template   # (4)
+      template:
+        src: "{{ template }}"
+        dest: "{{ config_filename }}"
+        lstrip_blocks: yes
+
