@@ -1,0 +1,23 @@
+---
+
+- hosts: all
+  gather_facts: no
+  connection: network_cli
+
+  vars:
+    template: acl_template.j2
+    acl_list: acl_requests_not_permitted.txt
+    config_filename: "add/acl_config_{{ inventory_hostname }}.txt"
+
+  tasks:
+    - name: set acl requests
+      set_fact:
+        acls: "{{ lookup('file', acl_list) }}"
+      run_once: yes
+
+    - name: build template
+      template:
+        src: "{{ template }}"
+        dest: "{{ config_filename }}"
+        lstrip_blocks: yes
+

@@ -1,0 +1,81 @@
+---
+
+- hosts: localhost
+  gather_facts: no
+  connection: local
+  vars:
+    acls: []
+    acl_list: acl_requests_batfish.csv
+    acl_list_not_permitted: acl_requests_not_permitted.txt
+    batfish_session: c333e6cc5b62
+    batfish_network: example_network
+    batfish_snapshot: example_snapshot
+    batfish_snapshot_data: ./mynetworks/test1
+
+  roles:
+    - batfish.base
+
+  tasks:
+  - name: Setup connection to Batfish service
+    bf_session:
+      host: "{{ ansible_host }}"
+      name: "{{ batfish_session }}"
+    run_once: yes
+
+  - name: Initialize the example network
+    bf_init_snapshot:
+      network: "{{ batfish_network }}"
+      snapshot: "{{ batfish_snapshot }}"
+      snapshot_data: "{{ batfish_snapshot_data }}"
+      overwrite: true
+    run_once: yes
+
+  - name: Read acl requests from CSV file and return a list
+    read_csv:
+      path: "{{ acl_list }}"
+    run_once: yes
+    register: acl_requests
+
+  - name: Display acl requests
+    debug:
+      msg: "{{ acl_requests.list }}"
+    run_once: yes
+
+  - name: Set acl requests
+    set_fact:
+      acls_all: "{{ acl_requests.list }}"
+    run_once: yes
+
+  - name: Confirm a filter permits some specific traffic
+    bf_assert:
+      assertions:
+        - type: assert_filter_permits
+          name: confirm the acl requests are permitted by existing acls
+          parameters:
+            filters: '{{ item.hostname }}["{{ item.acl_name }}"]'
+            headers:
+              ipProtocols: "{{ item.protocol | regex_replace('^ip$', omit) }}"
+              srcIps: "{{ item.src_addr }}"
+              srcPorts: "{{ item.src_port | regex_replace('^$', omit) }}"
+              dstIps: "{{ item.dest_addr }}"
+              dstPorts: "{{ item.dest_port | regex_replace('^$', omit) }}"
+              applications: "{{ item.application | regex_replace('^$', omit) }}"
+    ignore_errors: yes
+    register: result
+    loop: "{{ acls_all }}"
+
+  - name: Set "not permitted" acl requests
+    set_fact:
+      acls: "{{ acls + [item.item] }}"
+    when: item.failed == true
+    loop: "{{ result.results }}"
+
+  - name: Display "not permitted" acl requests
+    debug:
+      msg: "{{ acls }}"
+
+  - name: Copy file with "not permitted" acl requests
+    copy:
+      content: "{{ acls }}"
+      dest: "{{ acl_list_not_permitted }}"
+

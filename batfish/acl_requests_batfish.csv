@@ -1,0 +1,5 @@
+hostname,change,acl_type,acl_name,seq_no,action,protocol,src_addr,src_oper,src_port,dest_addr,dest_oper,dest_port,application,modifier,description
+hqdist1,add,name_extended,ACL_TEST,,permit,ip,10.10.0.0/24,,,192.168.0.0/24,,,,,
+hqdist1,add,name_extended,ACL_TEST,,permit,ip,10.10.1.1/32,,,192.168.1.1/32,,,,,
+hqdist1,add,name_extended,ACL_TEST,,permit,tcp,10.10.2.1/32,,,192.168.2.1/32,eq,80,,,
+hqdist1,add,name_extended,ACL_TEST,,permit,ip,10.10.2.0/24,,,192.168.2.0/24,,,,,

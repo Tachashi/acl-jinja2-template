@@ -1,0 +1,242 @@
+Building configuration...
+
+Current configuration : 4683 bytes
+!
+! Last configuration change at 23:15:42 JST Fri Dec 6 2019
+! NVRAM config last updated at 23:13:52 JST Fri Dec 6 2019
+!
+version 12.2
+no service pad
+service timestamps debug datetime localtime
+service timestamps log datetime localtime
+service password-encryption
+!
+hostname hqdist1
+!
+boot-start-marker
+boot-end-marker
+!
+no logging console
+enable secret 5 $1$l03P$J7t27Eqc/2bMJ5pvXxbyd.
+!
+username test password 7 120D000406
+username admin password 7 130D0616021F107B2A
+!
+!
+no aaa new-model
+clock timezone JST 9
+system mtu routing 1500
+ip routing
+no ip domain-lookup
+ip domain-name hqdist1A
+!
+!
+!
+!
+!
+!
+!
+!
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+spanning-tree vlan 1,101 priority 0
+!
+vlan internal allocation policy ascending
+!
+ip ssh version 2
+!
+!
+!
+interface Port-channel1
+ description << Connect hqdist1 and hqdist2 >>
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 1,101
+ switchport mode trunk
+!
+interface FastEthernet0/1
+ description << To hqborder1 Fa1 >>
+ switchport access vlan 200
+ switchport mode access
+ speed 100
+ duplex full
+!
+interface FastEthernet0/2
+ description << To hqborder2 Fa1 >>
+ switchport access vlan 202
+ switchport mode access
+ speed 100
+ duplex full
+!
+interface FastEthernet0/3
+ description << To hqaccess1 Fa0/23 >>
+ switchport access vlan 100
+ switchport mode access
+ speed 100
+ duplex full
+!
+interface FastEthernet0/4
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+!
+interface FastEthernet0/5
+ shutdown
+!
+interface FastEthernet0/6
+ shutdown
+!
+interface FastEthernet0/7
+ shutdown
+!
+interface FastEthernet0/8
+ shutdown
+!
+interface FastEthernet0/9
+ shutdown
+!
+interface FastEthernet0/10
+ shutdown
+!
+interface FastEthernet0/11
+ shutdown
+!
+interface FastEthernet0/12
+ switchport access vlan 203
+ switchport mode access
+!
+interface FastEthernet0/13
+ switchport access vlan 100
+ switchport mode access
+!
+interface FastEthernet0/14
+ shutdown
+!
+interface FastEthernet0/15
+ shutdown
+!
+interface FastEthernet0/16
+ shutdown
+!
+interface FastEthernet0/17
+ shutdown
+!
+interface FastEthernet0/18
+ shutdown
+!
+interface FastEthernet0/19
+ shutdown
+!
+interface FastEthernet0/20
+ shutdown
+!
+interface FastEthernet0/21
+ shutdown
+!
+interface FastEthernet0/22
+ shutdown
+!
+interface FastEthernet0/23
+ description << To hqdist2 Fa0/23 >>
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 1,101
+ switchport mode trunk
+ channel-group 1 mode on
+!
+interface FastEthernet0/24
+ description << To hqdist2 Fa0/24 >>
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 1,101
+ switchport mode trunk
+ channel-group 1 mode on
+!
+interface GigabitEthernet0/1
+!
+interface GigabitEthernet0/2
+!
+interface Vlan1
+ no ip address
+!
+interface Vlan100
+ ip address 192.168.100.24 255.255.255.0
+!
+interface Vlan101
+ description << Server Segment >>
+ ip address 192.168.101.49 255.255.255.0
+ ip access-group ACL_TEST out
+ standby 101 ip 192.168.101.50
+ standby 101 priority 150
+ standby 101 preempt
+!
+interface Vlan200
+ description << border1 - dist1 Segment >>
+ ip address 192.168.200.2 255.255.255.252
+!
+interface Vlan202
+ description << border2 - dist1 Segment >>
+ ip address 192.168.200.10 255.255.255.252
+!
+interface Vlan203
+ description << Border connect Segment >>
+ ip address 192.168.200.14 255.255.255.252
+!
+!
+router eigrp 1
+ network 192.168.100.0
+ network 192.168.101.0
+ network 192.168.200.0 0.0.0.3
+ network 192.168.200.8 0.0.0.3
+ network 192.168.200.12 0.0.0.3
+ passive-interface Vlan101
+!
+ip classless
+ip route 0.0.0.0 0.0.0.0 192.168.100.1
+ip route 10.1.1.0 255.255.255.0 192.168.100.70
+ip route 10.100.100.0 255.255.255.0 192.168.100.202
+no ip http server
+no ip http secure-server
+!
+!
+ip access-list extended ACL_TEST
+ permit ip 10.10.1.0 0.0.0.255 192.168.1.0 0.0.0.255
+ permit tcp host 10.10.2.1 host 192.168.2.1 eq www
+ip access-list extended Server
+ permit ip 10.10.1.0 0.0.0.255 192.168.100.0 0.0.0.255
+ permit ip any host 192.168.100.107
+ permit ip any host 192.168.100.37
+ permit ip any host 192.168.100.47
+ permit ip any host 192.168.100.44
+ permit udp any host 192.168.100.44 eq ntp
+!
+ip sla enable reaction-alerts
+logging 192.168.100.107
+!
+snmp-server community C1sc0 RO
+snmp-server host 192.168.100.107 C1sc0
+!
+no vstack
+banner login ^C
+============NOTICE==============
+| This is test device for demo |
+================================
+^C
+!
+line con 0
+line vty 0 4
+ password 7 04531A020632581F08
+ login
+ transport input telnet
+line vty 5 7
+ password 7 04531A020632581F08
+ login
+ transport input telnet
+line vty 8 15
+ login local
+ transport input ssh
+!
+ntp clock-period 36028919
+ntp server 192.168.100.1
+ntp server 192.168.100.44
+ntp server 192.168.100.108
+ntp server 133.243.238.164
+end
+
